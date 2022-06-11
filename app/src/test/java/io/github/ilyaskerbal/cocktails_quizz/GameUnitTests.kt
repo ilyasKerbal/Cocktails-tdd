@@ -8,6 +8,8 @@ import org.hamcrest.Matchers.greaterThan
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.*
 
 private const val CORRECT_ANSWER = "CORRECT"
 private const val INCORRECT_ANSWER = "INCORRECT"
@@ -75,5 +77,49 @@ class GameUnitTests {
         val nextQuestion = game.nextQuestion()
 
         assertThat("if there are no questions, the next question must return null", nextQuestion, nullValue())
+    }
+
+    /**
+     * Mockito Tests
+     * */
+
+    @Test
+    fun gameAnswer_shouldDelegateToQuestion() {
+        val question = mock<Question>()
+        game = Game(listOf(question))
+
+        game.answer(question, CORRECT_ANSWER)
+
+        verify(question, times(1)).answer(eq(CORRECT_ANSWER)) // We can omit `times(1)`
+    }
+
+    @Test
+    fun gameAnswer_correctAnswer_shouldIncreaseScore() {
+        val question = mock<Question>()
+
+        whenever(question.answer(anyString())).thenReturn(true) // We can specify `CORRECT_ANSWER` instead of anyString()
+
+        game = Game(listOf(question))
+
+        val previousScore = game.currentScore
+
+        game.answer(question, CORRECT_ANSWER)
+
+        assertThat(game.currentScore, equalTo(previousScore + 1))
+    }
+
+    @Test
+    fun gameAnswer_incorrectAnswer_shouldNotIncrementScore() {
+        val question = mock<Question>()
+
+        whenever(question.answer(anyString())).thenReturn(false)
+
+        game = Game(listOf(question))
+
+        val previousScore = game.currentScore
+
+        game.answer(question, INCORRECT_ANSWER)
+
+        assertThat(game.currentScore, equalTo(previousScore))
     }
 }

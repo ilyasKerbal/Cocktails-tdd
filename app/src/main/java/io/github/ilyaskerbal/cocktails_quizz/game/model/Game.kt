@@ -27,4 +27,9 @@ class Game (qs: List<Question> = listOf<Question>()) {
     }
 
     fun nextQuestion() : Question? = _questions.removeFirstOrNull()
+
+    fun answer(question: Question, answer: String) {
+        val response = question.answer(answer)
+        if (response) incrementScore()
+    }
 }
