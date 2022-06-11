@@ -2,6 +2,7 @@ package io.github.ilyaskerbal.cocktails_quizz
 
 import io.github.ilyaskerbal.cocktails_quizz.game.model.Game
 import io.github.ilyaskerbal.cocktails_quizz.game.model.Question
+import io.github.ilyaskerbal.cocktails_quizz.game.model.Score
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.greaterThan
@@ -24,39 +25,6 @@ class GameUnitTests {
     @Before
     fun setup() {
         game = Game(listOf(question1, question2))
-    }
-
-    @Test
-    fun incrementScore_incrementingScore_shouldIncrementCurrentScore() {
-        val expectedScore = game.currentScore + 1
-
-        game.incrementScore()
-
-        assertThat("Current score should have been $expectedScore", game.currentScore, equalTo(expectedScore))
-    }
-
-    @Test
-    fun incrementScore_incrementingScore_shouldChangeHighestScore() {
-        val previousHighScore = game.highestScore
-
-        game.incrementScore()
-
-        val currentHighScore = game.highestScore
-
-        assertThat("New high score should be greater than previous high score", currentHighScore, greaterThan(previousHighScore))
-    }
-
-    @Test
-    fun incrementScore_incrementingScore_shouldNotChangeHighestScore_ifLowerThanHighScore() {
-        game = Game(10)
-
-        val previousHighScore = game.highestScore
-
-        game.incrementScore()
-
-        val currentHighScore = game.highestScore
-
-        assertThat("increment score should not change high score if current score is lower", currentHighScore, equalTo(previousHighScore))
     }
 
     @Test
@@ -96,30 +64,27 @@ class GameUnitTests {
     @Test
     fun gameAnswer_correctAnswer_shouldIncreaseScore() {
         val question = mock<Question>()
-
+        val score = mock<Score>()
         whenever(question.answer(anyString())).thenReturn(true) // We can specify `CORRECT_ANSWER` instead of anyString()
 
-        game = Game(listOf(question))
-
-        val previousScore = game.currentScore
+        game = Game(listOf(question), score)
 
         game.answer(question, CORRECT_ANSWER)
 
-        assertThat(game.currentScore, equalTo(previousScore + 1))
+        verify(score, times(1)).increment()
     }
 
     @Test
     fun gameAnswer_incorrectAnswer_shouldNotIncrementScore() {
         val question = mock<Question>()
+        val score = mock<Score>()
 
         whenever(question.answer(anyString())).thenReturn(false)
 
-        game = Game(listOf(question))
-
-        val previousScore = game.currentScore
+        game = Game(listOf(question), score)
 
         game.answer(question, INCORRECT_ANSWER)
 
-        assertThat(game.currentScore, equalTo(previousScore))
+        verify(score, never()).increment()
     }
 }
