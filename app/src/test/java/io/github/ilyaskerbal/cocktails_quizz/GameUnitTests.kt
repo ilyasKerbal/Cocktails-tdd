@@ -2,6 +2,9 @@ package io.github.ilyaskerbal.cocktails_quizz
 
 import io.github.ilyaskerbal.cocktails_quizz.game.model.Game
 import io.github.ilyaskerbal.cocktails_quizz.game.model.Question
+import org.hamcrest.CoreMatchers.*
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.greaterThan
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -27,7 +30,7 @@ class GameUnitTests {
 
         game.incrementScore()
 
-        Assert.assertEquals("Current score should have been $expectedScore", expectedScore, game.currentScore)
+        assertThat("Current score should have been $expectedScore", game.currentScore, equalTo(expectedScore))
     }
 
     @Test
@@ -38,7 +41,7 @@ class GameUnitTests {
 
         val currentHighScore = game.highestScore
 
-        Assert.assertEquals("New high score should be greater than previous high score",true, currentHighScore > previousHighScore)
+        assertThat("New high score should be greater than previous high score", currentHighScore, greaterThan(previousHighScore))
     }
 
     @Test
@@ -51,18 +54,18 @@ class GameUnitTests {
 
         val currentHighScore = game.highestScore
 
-        Assert.assertEquals("increment score should not change high score if current score is lower", true, currentHighScore == previousHighScore)
+        assertThat("increment score should not change high score if current score is lower", currentHighScore, equalTo(previousHighScore))
     }
 
     @Test
     fun nextQuestion_shouldReturnNextQuestion() {
         var nextQuestion = game.nextQuestion()
 
-        Assert.assertEquals(question1, nextQuestion)
+        assertThat(nextQuestion, `is`(question1))
 
         nextQuestion = game.nextQuestion()
 
-        Assert.assertEquals(question2, nextQuestion)
+        assertThat(nextQuestion, `is`(question2))
     }
 
     @Test
@@ -71,6 +74,6 @@ class GameUnitTests {
 
         val nextQuestion = game.nextQuestion()
 
-        Assert.assertNull(nextQuestion)
+        assertThat("if there are no questions, the next question must return null", nextQuestion, nullValue())
     }
 }
