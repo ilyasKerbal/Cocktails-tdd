@@ -1,5 +1,6 @@
 package io.github.ilyaskerbal.cocktails_quizz
 
+import io.github.ilyaskerbal.cocktails_quizz.game.model.Game
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
