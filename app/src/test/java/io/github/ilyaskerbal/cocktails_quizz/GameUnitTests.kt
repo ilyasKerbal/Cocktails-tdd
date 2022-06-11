@@ -2,12 +2,15 @@ package io.github.ilyaskerbal.cocktails_quizz
 
 import io.github.ilyaskerbal.cocktails_quizz.game.model.Game
 import io.github.ilyaskerbal.cocktails_quizz.game.model.Question
+import io.github.ilyaskerbal.cocktails_quizz.game.model.Score
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.greaterThan
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.*
 
 private const val CORRECT_ANSWER = "CORRECT"
 private const val INCORRECT_ANSWER = "INCORRECT"
@@ -22,39 +25,6 @@ class GameUnitTests {
     @Before
     fun setup() {
         game = Game(listOf(question1, question2))
-    }
-
-    @Test
-    fun incrementScore_incrementingScore_shouldIncrementCurrentScore() {
-        val expectedScore = game.currentScore + 1
-
-        game.incrementScore()
-
-        assertThat("Current score should have been $expectedScore", game.currentScore, equalTo(expectedScore))
-    }
-
-    @Test
-    fun incrementScore_incrementingScore_shouldChangeHighestScore() {
-        val previousHighScore = game.highestScore
-
-        game.incrementScore()
-
-        val currentHighScore = game.highestScore
-
-        assertThat("New high score should be greater than previous high score", currentHighScore, greaterThan(previousHighScore))
-    }
-
-    @Test
-    fun incrementScore_incrementingScore_shouldNotChangeHighestScore_ifLowerThanHighScore() {
-        game = Game(10)
-
-        val previousHighScore = game.highestScore
-
-        game.incrementScore()
-
-        val currentHighScore = game.highestScore
-
-        assertThat("increment score should not change high score if current score is lower", currentHighScore, equalTo(previousHighScore))
     }
 
     @Test
@@ -75,5 +45,46 @@ class GameUnitTests {
         val nextQuestion = game.nextQuestion()
 
         assertThat("if there are no questions, the next question must return null", nextQuestion, nullValue())
+    }
+
+    /**
+     * Mockito Tests
+     * */
+
+    @Test
+    fun gameAnswer_shouldDelegateToQuestion() {
+        val question = mock<Question>()
+        game = Game(listOf(question))
+
+        game.answer(question, CORRECT_ANSWER)
+
+        verify(question, times(1)).answer(eq(CORRECT_ANSWER)) // We can omit `times(1)`
+    }
+
+    @Test
+    fun gameAnswer_correctAnswer_shouldIncreaseScore() {
+        val question = mock<Question>()
+        val score = mock<Score>()
+        whenever(question.answer(anyString())).thenReturn(true) // We can specify `CORRECT_ANSWER` instead of anyString()
+
+        game = Game(listOf(question), score)
+
+        game.answer(question, CORRECT_ANSWER)
+
+        verify(score, times(1)).increment()
+    }
+
+    @Test
+    fun gameAnswer_incorrectAnswer_shouldNotIncrementScore() {
+        val question = mock<Question>()
+        val score = mock<Score>()
+
+        whenever(question.answer(anyString())).thenReturn(false)
+
+        game = Game(listOf(question), score)
+
+        game.answer(question, INCORRECT_ANSWER)
+
+        verify(score, never()).increment()
     }
 }

@@ -1,6 +1,6 @@
 package io.github.ilyaskerbal.cocktails_quizz.game.model
 
-class Game (qs: List<Question> = listOf<Question>()) {
+class Game (qs: List<Question> = listOf<Question>(), score: Score = Score(0)) {
 
     private lateinit var _questions : MutableList<Question>
 
@@ -11,20 +11,20 @@ class Game (qs: List<Question> = listOf<Question>()) {
         _questions = qs.toMutableList()
     }
 
-    var currentScore : Int = 0
-        private set
+    private val _score = score
 
-    var highestScore : Int = 0
-        private set
+    val currentScore : Int
+        get() = _score.current
 
-    fun incrementScore() {
-        currentScore++
-        if (currentScore > highestScore) highestScore = currentScore
-    }
+    val highestScore : Int
+        get() = _score.highest
 
-    constructor (highest: Int) : this() {
-        highestScore = highest
-    }
+    constructor (highScore: Int) : this(score = Score(10))
 
     fun nextQuestion() : Question? = _questions.removeFirstOrNull()
+
+    fun answer(question: Question, answer: String) {
+        val response = question.answer(answer)
+        if (response) _score.increment()
+    }
 }
