@@ -17,4 +17,8 @@ class CocktailsRepositoryImpl(
     }
 
     override fun getHighScore(): Int = sharedPreferences.getInt(HIGH_SCORE_KEY, 0)
+
+    override fun getAlcoholic(callback: CocktailsRepository.RepositoryCallback) {
+        // TODO
+    }
 }
