@@ -12,6 +12,8 @@ class Game (qs: List<Question> = listOf<Question>(), score: Score = Score(0)) {
     }
 
     private val _score = score
+    val score : Score
+        get() = _score
 
     val currentScore : Int
         get() = _score.current
